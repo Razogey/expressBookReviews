@@ -87,7 +87,18 @@ public_users.get("/author/:author", function (req, res) {
   }
 });
 
-// Get all books based on title
+// Task 13: Helper function to get book details based on Title using Axios & Async/Await
+async function getBooksByTitleAxios(title) {
+  try {
+    const response = await axios.get(`http://localhost:5000/title/${title}`);
+    console.log("Books by Title:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching books by title:", error.message);
+  }
+}
+
+
 public_users.get("/title/:title", function (req, res) {
   const title = req.params.title;
   let booksByTitle = [];
@@ -100,7 +111,11 @@ public_users.get("/title/:title", function (req, res) {
     }
   });
 
-  res.send(booksByTitle);
+  if (booksByTitle.length > 0) {
+    return res.status(200).json(booksByTitle);
+  } else {
+    return res.status(404).json({ message: "No books found with this title" });
+  }
 });
 
 //  Get book review
