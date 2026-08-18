@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require("axios")
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
@@ -37,12 +38,25 @@ public_users.get("/", async function (req, res) {
   }
 });
 
-// Get book details based on ISBN
-public_users.get("/isbn/:isbn", function (req, res) {
-  const isbn = req.params.isbn;
-  let book = books[isbn];
+// Task 11: Helper Function to fetch book by ISBN using Axios and Async/Await
+async function getBookByIsbnAxios(isbn) {
+  try {
+    const response = await axios.get(`http://localhost:5000/isbn/${isbn}`);
+    console.log("Book Details:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching book by ISBN:", error.message);
+  }
+}
 
-  res.send(book);
+// Route المخدّم للبيانات
+public_users.get('/isbn/:isbn', function (req, res) {
+  const isbn = req.params.isbn;
+  if (books[isbn]) {
+    return res.status(200).json(books[isbn]);
+  } else {
+    return res.status(404).json({ message: "Book not found" });
+  }
 });
 
 // Get book details based on author
