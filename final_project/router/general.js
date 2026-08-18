@@ -1,5 +1,5 @@
 const express = require("express");
-const axios = require("axios")
+const axios = require("axios");
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
@@ -49,8 +49,7 @@ async function getBookByIsbnAxios(isbn) {
   }
 }
 
-// Route المخدّم للبيانات
-public_users.get('/isbn/:isbn', function (req, res) {
+public_users.get("/isbn/:isbn", function (req, res) {
   const isbn = req.params.isbn;
   if (books[isbn]) {
     return res.status(200).json(books[isbn]);
@@ -59,7 +58,17 @@ public_users.get('/isbn/:isbn', function (req, res) {
   }
 });
 
-// Get book details based on author
+// Task 12: Helper function to get books by Author using Axios & Async/Await
+async function getBookByAuthor() {
+  try {
+    const response = await axios.get(`http://localhost:5000/author/${author}`);
+    console.log("Book Details:", response.data);
+    return response.data;
+  } catch (error) {
+    console.log("Error fetching book by Author:", error.message);
+  }
+}
+
 public_users.get("/author/:author", function (req, res) {
   const author = req.params.author;
   let booksByAuthor = [];
@@ -71,7 +80,11 @@ public_users.get("/author/:author", function (req, res) {
     }
   });
 
-  res.send(booksByAuthor);
+  if (booksByAuthor.length > 0) {
+    return res.status(200).json(booksByAuthor);
+  } else {
+    return res.status(404).json({ message: "No books found by this author" });
+  }
 });
 
 // Get all books based on title
