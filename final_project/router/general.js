@@ -28,7 +28,7 @@ public_users.post("/register", (req, res) => {
   });
 });
 
-// Get the book list available in the shop using Promise with Async/Await
+// Task 10: Get the book list available in the shop using Promise with Async/Await
 public_users.get("/", async function (req, res) {
   try {
     const bookList = await new Promise((resolve) => resolve(books));
@@ -58,24 +58,24 @@ public_users.get("/isbn/:isbn", function (req, res) {
   }
 });
 
-// Task 12: Helper function to get books by Author using Axios & Async/Await
-async function getBookByAuthor() {
+// Task 12: Helper function to get books by Author using Axios & Async/Await (FIXED PARAMETER)
+async function getBookByAuthorAxios(author) {
   try {
     const response = await axios.get(`http://localhost:5000/author/${author}`);
     console.log("Book Details:", response.data);
     return response.data;
   } catch (error) {
-    console.log("Error fetching book by Author:", error.message);
+    console.error("Error fetching book by Author:", error.message);
   }
 }
 
 public_users.get("/author/:author", function (req, res) {
-  const author = req.params.author;
+  const authorParam = req.params.author.toLowerCase();
   let booksByAuthor = [];
   let keys = Object.keys(books);
 
   keys.forEach((key) => {
-    if (books[key].author === author) {
+    if (books[key].author.toLowerCase() === authorParam) {
       booksByAuthor.push(books[key]);
     }
   });
@@ -98,15 +98,13 @@ async function getBooksByTitleAxios(title) {
   }
 }
 
-
 public_users.get("/title/:title", function (req, res) {
-  const title = req.params.title;
+  const titleParam = req.params.title.toLowerCase();
   let booksByTitle = [];
-
   let keys = Object.keys(books);
 
   keys.forEach((key) => {
-    if (books[key].title === title) {
+    if (books[key].title.toLowerCase() === titleParam) {
       booksByTitle.push(books[key]);
     }
   });
@@ -118,12 +116,16 @@ public_users.get("/title/:title", function (req, res) {
   }
 });
 
-//  Get book review
+// Get book review
 public_users.get("/review/:isbn", function (req, res) {
   const isbn = req.params.isbn;
   let book = books[isbn];
 
-  res.send(book["reviews"]);
+  if (book) {
+    return res.status(200).json(book.reviews);
+  } else {
+    return res.status(404).json({ message: "Book not found" });
+  }
 });
 
 module.exports.general = public_users;
