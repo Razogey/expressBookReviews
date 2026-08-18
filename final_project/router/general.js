@@ -7,7 +7,6 @@ const public_users = express.Router();
 public_users.post("/register", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-
   if (!username || !password) {
     return res.status(404).json({ message: "Unable to register user." });
   }
@@ -28,9 +27,14 @@ public_users.post("/register", (req, res) => {
   });
 });
 
-// Get the book list available in the shop
-public_users.get("/", function (req, res) {
-  res.send(JSON.stringify(books, null, 2));
+// Get the book list available in the shop using Promise with Async/Await
+public_users.get("/", async function (req, res) {
+  try {
+    const bookList = await new Promise((resolve) => resolve(books));
+    return res.status(200).send(JSON.stringify(bookList, null, 4));
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching books" });
+  }
 });
 
 // Get book details based on ISBN
